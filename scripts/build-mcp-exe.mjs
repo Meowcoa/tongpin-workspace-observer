@@ -1,0 +1,15 @@
+import {build} from 'esbuild';
+import {mkdir,writeFile,copyFile,readFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {inject} from 'postject';
+await mkdir('desktop-dist',{recursive:true});
+await build({entryPoints:['desktop/mcp-sea-entry.ts'],outfile:'desktop-dist/mcp-helper.cjs',bundle:true,platform:'node',target:'node24',format:'cjs'});
+await writeFile('desktop-dist/sea-config.json',JSON.stringify({main:'desktop-dist/mcp-helper.cjs',output:'desktop-dist/mcp-helper.blob',disableExperimentalSEAWarning:true,useSnapshot:false,useCodeCache:false,execArgvExtension:'none'}));
+const prepared=spawnSync(process.execPath,['--experimental-sea-config','desktop-dist/sea-config.json'],{stdio:'inherit',windowsHide:true});
+if(prepared.status!==0)throw new Error('SEA preparation failed');
+await copyFile(process.execPath,'desktop-dist/mcp-helper.exe');
+await inject('desktop-dist/mcp-helper.exe','NODE_SEA_BLOB',await readFile('desktop-dist/mcp-helper.blob'),{sentinelFuse:'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2'});
+const result=spawnSync('desktop-dist/mcp-helper.exe',['--self-test'],{encoding:'utf8',windowsHide:true,env:{...process.env,PATH:`${process.env.SystemRoot}\\System32`}});
+if(result.status!==0)throw new Error('Self-contained MCP EXE self-test failed: '+result.stderr);
+const metadata=JSON.parse(result.stdout);if(!metadata.self_contained)throw new Error('Incorrect runtime self-test');
+console.log('MCP EXE verified without system Node.js on PATH:',metadata.node);

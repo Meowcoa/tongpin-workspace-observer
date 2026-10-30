@@ -1,0 +1,15 @@
+import {build} from 'esbuild';
+import {mkdir,copyFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+const notices=spawnSync(process.execPath,['scripts/write-third-party-notices.mjs'],{stdio:'inherit',windowsHide:true});
+if(notices.status!==0)throw new Error('Third-party notice generation failed');
+const catalog=spawnSync(process.execPath,['--import','tsx','scripts/generate-tool-catalog.ts'],{stdio:'inherit',windowsHide:true});
+if(catalog.status!==0)throw new Error('Real tool catalog generation failed');
+await import('./build-mcp-exe.mjs');
+await mkdir('desktop-dist',{recursive:true});
+const banner="import {createRequire as __createRequire} from 'node:module'; const require=__createRequire(import.meta.url);";
+await build({entryPoints:['server/http.ts'],outfile:'desktop-dist/backend.mjs',bundle:true,platform:'node',target:'node24',format:'esm',banner:{js:banner}});
+await build({entryPoints:['desktop/bridge-entry.ts'],outfile:'desktop-dist/bridge.mjs',bundle:true,platform:'node',target:'node24',format:'esm',banner:{js:banner}});
+await build({entryPoints:['desktop/main.cjs'],outfile:'desktop-dist/main.cjs',bundle:true,platform:'node',target:'node24',format:'cjs',external:['electron']});
+await copyFile('desktop/preload.cjs','desktop-dist/preload.cjs');
+console.log('Desktop runtime bundled. End users do not need Node.js or npm.');

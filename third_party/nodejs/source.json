@@ -1,0 +1,8 @@
+{
+  "version": "24.16.0",
+  "source": "https://github.com/nodejs/node/blob/v24.16.0/LICENSE",
+  "git_blob_sha": "403ea3c5717087b20e9cddaa2b4881256b6b4858",
+  "sha256": "34398073d089ff2f4c27a2a6a3f133ccfa2eae270c1e4252e81f64d39e216396",
+  "upstream_sha256": "4573185d56580da2b890ba34a85a409257640f1c5632eade4300137266194d18",
+  "formatting_note": "Expanded spaces-plus-tab indentation before an Apache license URL to spaces; license wording is unchanged."
+}

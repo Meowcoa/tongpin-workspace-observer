@@ -1,0 +1,9 @@
+export type CollaborationMode='parallel'|'sequential';
+export type Settings={retention_days:number;snapshot_budget_mb:number;max_text_kb:number;collaboration_mode:CollaborationMode;turn_timeout_seconds:number;message_quota_total_kb:number;message_min_interval_seconds:number};
+export const DEFAULT_SETTINGS:Settings={retention_days:30,snapshot_budget_mb:1024,max_text_kb:1024,collaboration_mode:'parallel',turn_timeout_seconds:900,message_quota_total_kb:10240,message_min_interval_seconds:2};
+export type TurnState={client_id:string;name:string;state:'holding'|'waiting'|'expired';queue_position:number;requested_at:string;expires_at:string|null;last_polled_at:string};
+export type CollaborationStatus={mode:CollaborationMode;holder:TurnState|null;expired_holder:TurnState|null;waiting:TurnState[];waiting_count:number;waiting_timeout_seconds:number;enforced_file_lock:false};
+export type MessageType='question'|'review_request'|'handoff'|'result'|'notice';
+export type MessageInput={recipient_client_id?:string|null;reply_to_message_id?:string|null;type:MessageType;subject:string;body:string;related_paths:string[];related_change_ids:string[]};
+export type ObserverMessage=MessageInput & {message_id:string;workspace_id:string;message_seq:number;sender_client_id:string;recipient_client_id:string|null;reply_to_message_id:string|null;created_at:string;untrusted_content:true;content_warning:string};
+export type MessageUsage={bytes:number;quota_bytes:number;count:number;quota_reached:boolean;oldest_available_seq:number;latest_seq:number};

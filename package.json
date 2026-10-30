@@ -1,0 +1,67 @@
+{
+  "name": "workspace-observer",
+  "version": "0.2.2",
+  "description": "同频：本地共享工作区观察器与独立 MCP 服务",
+  "author": "Meowcoa",
+  "license": "MIT",
+  "main": "desktop-dist/main.cjs",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.16.0 <25"
+  },
+  "scripts": {
+    "start": "tsx server/main.ts",
+    "build": "tsc --noEmit && vite build",
+    "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
+    "probe": "node scripts/probe.mjs",
+    "desktop:bundle": "node scripts/build-desktop.mjs",
+    "desktop:dev": "electron .",
+    "test:desktop": "tsx --test tests/desktop.ts",
+    "desktop:pack": "npm run build && npm run desktop:bundle && electron-builder --win portable --x64 --config electron-builder.json",
+    "distribution": "node scripts/build-distribution.mjs",
+    "check:source": "node scripts/check-source.mjs",
+    "verify:desktop": "node scripts/verify-built-app.mjs",
+    "verify:distribution": "node scripts/verify-public-bundle.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "chokidar": "6.0.0",
+    "diff": "^8.0.2",
+    "dompurify": "3.4.17",
+    "express": "^5.1.0",
+    "fast-xml-parser": "5.11.2",
+    "fflate": "0.8.3",
+    "papaparse": "5.7.0",
+    "pdfjs-dist": "6.4.299",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.2",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.0",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.28.2",
+    "postject": "1.0.0-alpha.6",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Meowcoa/tongpin-workspace-observer.git"
+  },
+  "homepage": "https://github.com/Meowcoa/tongpin-workspace-observer#readme",
+  "bugs": {
+    "url": "https://github.com/Meowcoa/tongpin-workspace-observer/issues"
+  }
+}
