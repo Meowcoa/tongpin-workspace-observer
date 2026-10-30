@@ -1,0 +1,75 @@
+name: Publish Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag with a draft GitHub release
+        required: true
+        default: v0.2.2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Validate draft target
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Expected a version tag' }
+          $draft = gh release view $env:RELEASE_TAG --json isDraft --jq .isDraft
+          if ($LASTEXITCODE -ne 0 -or $draft -ne 'true') { throw 'Create a draft release first; published assets are immutable in this workflow' }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+      - name: Validate package version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $package = Get-Content -LiteralPath package.json -Encoding utf8 | ConvertFrom-Json
+          if ($env:RELEASE_TAG -ne ('v' + $package.version)) { throw 'Tag and package version differ' }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check:source
+      - run: npm test
+      - run: npm run desktop:pack
+      - run: npm run test:desktop
+      - run: npm run verify:desktop
+      - run: npm run distribution
+      - run: npm run verify:distribution
+      - name: Upload and publish validated assets
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $draft = gh release view $env:RELEASE_TAG --json isDraft --jq .isDraft
+          if ($LASTEXITCODE -ne 0 -or $draft -ne 'true') { throw 'Target is no longer a draft release' }
+          $assets = @(Get-ChildItem -LiteralPath release/distribution -File | ForEach-Object { $_.FullName })
+          if ($assets.Count -ne 8) { throw 'Unexpected distribution asset set' }
+          gh release upload $env:RELEASE_TAG @assets --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+          gh release edit $env:RELEASE_TAG --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
