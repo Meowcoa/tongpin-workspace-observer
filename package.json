@@ -18,7 +18,7 @@
     "desktop:bundle": "node scripts/build-desktop.mjs",
     "desktop:dev": "electron .",
     "test:desktop": "tsx --test tests/desktop.ts",
-    "desktop:pack": "npm run build && npm run desktop:bundle && electron-builder --win portable --x64 --config electron-builder.json",
+    "desktop:pack": "npm run build && npm run desktop:bundle && electron-builder --win portable --x64 --config electron-builder.json --publish never",
     "distribution": "node scripts/build-distribution.mjs",
     "check:source": "node scripts/check-source.mjs",
     "verify:desktop": "node scripts/verify-built-app.mjs",
