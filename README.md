@@ -45,6 +45,8 @@ send_message / get_messages → 处理后 ack_messages
 
 使用 Windows、PowerShell 7 和 `.nvmrc` 指定的 Node.js 24.16.0；其余依赖由 `package-lock.json` 锁定。
 
+首次桌面构建需要联网获取锁定版本的 Electron。打包由 electron-builder 管理运行时下载，不依赖预先存在的 `node_modules/electron/dist`；Electron 45 的 npm 包改为按需下载二进制，见[官方安装说明](https://www.electronjs.org/docs/latest/tutorial/installation#binary-download-step)。
+
 ```powershell
 npm ci
 npm run check:source

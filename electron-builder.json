@@ -1,7 +1,6 @@
 {
   "appId": "local.tongpin.workspace-observer",
   "productName": "Tongpin",
-  "electronDist": "node_modules/electron/dist",
   "directories": { "output": "release" },
   "files": ["desktop-dist/main.cjs", "desktop-dist/backend.mjs", "desktop-dist/bridge.mjs", "desktop-dist/preload.cjs", "dist/**", "LICENSE", "THIRD_PARTY_NOTICES.md", "assets/icon.png", "assets/icon.ico", "package.json", "!node_modules/**"],
   "extraResources": [{ "from": "desktop-dist/mcp-helper.exe", "to": "mcp-helper.exe" }, { "from": "release/THIRD_PARTY_LICENSES.txt", "to": "THIRD_PARTY_LICENSES.txt" }],
